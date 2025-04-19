@@ -151,15 +151,21 @@ start_SWui() {
 }
 
 update_comfyui_pips() {
-  echo "Updating ComfyUI Pips..."
-  cd "${RP_VOLUME}"/StableSwarmUI/dlbackend/ComfyUI
-  pip install --upgrade pip
-  # Check if requirements are already installed
-  if ! pip check -r requirements.txt >/dev/null 2>&1; then
-    pip install -r requirements.txt
-  else
-    echo "All ComfyUI requirements are already installed, skipping installation."
+  echo "Updating ComfyUI dependencies…"
+
+  local ui_dir="${RP_VOLUME}/StableSwarmUI/dlbackend/ComfyUI"
+  if [[ ! -d "$ui_dir" ]]; then
+    echo "Error: directory '$ui_dir' not found." >&2
+    return 1
   fi
+
+  cd "$ui_dir" || return
+
+  # Upgrade pip itself
+  python -m pip install --upgrade pip
+
+  # Install only missing requirements (won't upgrade existing satisfied packages)
+  python -m pip install -r requirements.txt
 }
 
 export_env_vars
