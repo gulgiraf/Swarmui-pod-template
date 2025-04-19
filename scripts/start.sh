@@ -122,13 +122,6 @@ sync_workspace() {
     git clone https://github.com/mcmonkeyprojects/SwarmUI.git StableSwarmUI
   fi
 
-  cd StableSwarmUI
-  cd launchtools && \
-  # https://learn.microsoft.com/en-us/dotnet/core/install/linux-scripted-manual#scripted-install
-  wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && \
-  chmod +x dotnet-install.sh && \
-  ./dotnet-install.sh --channel 8.0 --runtime aspnetcore && \
-  ./dotnet-install.sh --channel 8.0
   # for serverless and pods files
   ln -s /workspace /runpod-volume
   echo "Workspace is synced"
@@ -156,8 +149,22 @@ start_SWui() {
     echo "Starting StableSwarmUI..."
     /bin/bash "${RP_VOLUME}"/StableSwarmUI/launch-linux.sh --host 0.0.0.0 --port 2254 --launch_mode none &
 }
+
+update_comfyui_pips() {
+  echo "Updating ComfyUI Pips..."
+  cd "${RP_VOLUME}"/StableSwarmUI/dlbackend/ComfyUI
+  pip install --upgrade pip
+  # Check if requirements are already installed
+  if ! pip check -r requirements.txt >/dev/null 2>&1; then
+    pip install -r requirements.txt
+  else
+    echo "All ComfyUI requirements are already installed, skipping installation."
+  fi
+}
+
 export_env_vars
 sync_workspace
+update_comfyui_pips
 
 echo "[MAIN] Starting SwarmUI service..."
 start_SWui

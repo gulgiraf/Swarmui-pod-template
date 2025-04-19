@@ -70,7 +70,14 @@ RUN --mount=type=cache,id=dev-apt-cache,sharing=locked,target=/var/cache/apt \
         libtcmalloc-minimal4 \
         apt-transport-https \
         ca-certificates
-#
+
+# Install .NET
+RUN wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && \
+    chmod +x dotnet-install.sh && \
+    ./dotnet-install.sh --channel 8.0 --runtime aspnetcore && \
+    ./dotnet-install.sh --channel 8.0 && \
+    rm dotnet-install.sh
+
 RUN update-ca-certificates
 RUN wget https://bootstrap.pypa.io/get-pip.py && \
 	python3.11 get-pip.py && \
@@ -98,6 +105,32 @@ RUN curl -s  \
         apt install -y speedtest
 
 RUN pip install --upgrade pip setuptools pickleshare --no-cache-dir --prefer-binary
+
+# Install additional Python packages
+RUN pip install --no-cache-dir --prefer-binary \
+    comfyui-frontend-package==1.16.9 \
+    comfyui-workflow-templates==0.1.1 \
+    torch \
+    torchsde \
+    torchvision \
+    torchaudio \
+    "numpy>=1.25.0" \
+    einops \
+    "transformers>=4.28.1" \
+    "tokenizers>=0.13.3" \
+    sentencepiece \
+    "safetensors>=0.4.2" \
+    "aiohttp>=3.11.8" \
+    "yarl>=1.18.0" \
+    pyyaml \
+    Pillow \
+    scipy \
+    tqdm \
+    psutil \
+    "kornia>=0.7.1" \
+    spandrel \
+    soundfile \
+    av
 
 # Upgrade apt packages and install required dependencies
 
